@@ -1,12 +1,15 @@
+require 'json'
+
 class SearchesController < ApplicationController
 	def new
+		redirect_to searches_url
 	end
 
 	def create
-		@search = Search.new(search_params)
-
+		p params
+		@search = Search.new({hashtag: params["hashtag"]})
 		@search.save
-		redirect_to @search
+		redirect_to 'index'
 	end
 
 	def index
