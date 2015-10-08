@@ -6,10 +6,18 @@ class SearchesController < ApplicationController
 	end
 
 	def create
+		p "*" * 100
+		p "you made it here"
 		p params
-		@search = Search.new({hashtag: params["hashtag"]})
+		@search = Search.new({hashtag: params["hashtag"], start_date: params["start_date"], end_date: params["end_date"]})
 		@search.save
-		redirect_to 'index'
+
+		response = HTTParty.get('https://api.instagram.com/v1/tags/snow/media/recent?access_token=1458656326.1fb234f.3ca08ac5039a40ac92cc74d6cf27aa05&max_tag_id=1090757953623701075')
+		responseBody = JSON.parse(response.body)
+		@search.test
+		# puts responseBody["pagination"]
+
+		render json: responseBody["pagination"]
 	end
 
 	def index

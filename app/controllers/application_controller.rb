@@ -4,8 +4,13 @@ class ApplicationController < ActionController::API
   # protect_from_forgery with: :exception
    before_action :allow_cross_origin_requests
 
+   def preflight
+       render nothing: true
+   end
+
    private
      def allow_cross_origin_requests
+      p "hello" * 100
        headers['Access-Control-Allow-Origin'] = '*'
        headers['Access-Control-Request-Method'] = '*'
        headers['Access-Control-Allow-Methods'] = 'POST, PUT, DELETE, GET, OPTIONS'

@@ -18,8 +18,8 @@ ActiveRecord::Schema.define(version: 20151007223019) do
 
   create_table "searches", force: :cascade do |t|
     t.string   "hashtag"
-    t.datetime "start_date"
-    t.datetime "end_date"
+    t.integer  "start_date"
+    t.integer  "end_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
