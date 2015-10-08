@@ -4,10 +4,15 @@ class ResultsController < ApplicationController
 		@result = @search.results.create(search_params)
 	end
 
-	def show
+	# def show
+	# 	@search = Search.find(params[:search_id])
+	# 	@result = @search.results.find(params[:id])
+	# 	render json: @result
+	# end
+
+	def index
 		@search = Search.find(params[:search_id])
-		@result = @search.results.find(params[:id])
-		render json: @result
+		render json: @search.results
 	end
 
 	private
