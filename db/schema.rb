@@ -11,10 +11,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151007223019) do
+ActiveRecord::Schema.define(version: 20151008062150) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "results", force: :cascade do |t|
+    t.string   "ig_username"
+    t.integer  "tag_time"
+    t.string   "content_type"
+    t.string   "ig_link"
+    t.string   "image_url"
+    t.string   "video_url"
+    t.text     "description"
+    t.integer  "search_id"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
+  add_index "results", ["search_id"], name: "index_results_on_search_id", using: :btree
 
   create_table "searches", force: :cascade do |t|
     t.string   "hashtag"
@@ -24,4 +39,5 @@ ActiveRecord::Schema.define(version: 20151007223019) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "results", "searches"
 end
