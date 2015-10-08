@@ -29,9 +29,16 @@ class SearchesController < ApplicationController
 		# @search.test
 		# write filters to filter out things by date and hash tag inclusion
 		# puts response_body["pagination"]
+		# load more button in the background 
+		# rails does have a background job
+		#sidekiq
 
-		render json: response_body["pagination"]
+		# make first request, return the first 20, start background job, go back to client
+		# create a load more button if there is a next page
+		# click the load button and hit a second route in the controller that will make a request that renders the images/videos without storing them because the background job is already going
+		render json: @search
 	end
+
 
 	def index
 		@searches = Search.all
