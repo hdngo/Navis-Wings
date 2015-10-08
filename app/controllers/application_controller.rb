@@ -1,10 +1,28 @@
 class ApplicationController < ActionController::API
-  helper_method :has_next_page_link?, :caption_empty?, :is_a_video?, :filter_data
+  helper_method :paginate, :has_next_page_link?, :caption_empty?, :is_a_video?, :filter_data
   # protect_from_forgery with: :exception
    before_action :allow_cross_origin_requests
 
    def preflight
        render nothing: true
+   end
+
+   def paginate(next_page_url, search_id)
+    response = HTTParty.get(next_page_url)
+    response_body = JSON.parse(response.body)
+
+    response_body["data"].each do |result|
+      filtered_result_data = filter_data(result)
+      @result = Result.create(ig_username: filtered_result_data[:ig_username], content_type: filtered_result_data[:content_type], ig_link: filtered_result_data[:ig_link], image_url: filtered_result_data[:image_url], video_url: filtered_result_data[:video_url], description: filtered_result_data[:description], search_id: search_id)
+      end
+
+      p "is there a next page?"
+      if has_next_page_link?(response_body)
+        p 'yeah, keep going!'
+        paginate(response_body["pagination"]["next_url"], search_id)
+      else
+        return
+      end
    end
 
    def has_next_page_link?(response_body)
