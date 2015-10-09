@@ -10,7 +10,7 @@ class SearchesController < ApplicationController
 		@search = Search.new({hashtag: params["hashtag"], start_date: params["start_date"], end_date: params["end_date"]})
 		@search.save
 
-		response = HTTParty.get('https://api.instagram.com/v1/tags/pixleememories/media/recent?access_token=1458656326.1fb234f.3ca08ac5039a40ac92cc74d6cf27aa05')
+		response = HTTParty.get('https://api.instagram.com/v1/tags/snow/media/recent?access_token=1458656326.1fb234f.3ca08ac5039a40ac92cc74d6cf27aa05')
 		response_body = JSON.parse(response.body)
 
 		if response_body["data"]
@@ -23,7 +23,8 @@ class SearchesController < ApplicationController
 				p "is there a next page?"
 				if has_next_page_link?(response_body)
 					p 'yeah, keep going!'
-					paginate(response_body["pagination"]["next_url"], @search.id)
+					InstagrabsWorker.perform_async(response_body["pagination"]["next_url"], @search.id)
+					# paginate(response_body["pagination"]["next_url"], @search.id)
 				end
 		end
 		# @search.test
@@ -33,10 +34,14 @@ class SearchesController < ApplicationController
 		# rails does have a background job
 		#sidekiq
 
-		# make first request, return the first 20, start background job, go back to client
+		# make first request, start background job,return the first 20, , go back to client
 		# create a load more button if there is a next page
 		# click the load button and hit a second route in the controller that will make a request that renders the images/videos without storing them because the background job is already going
-		render json: @search
+		# next route for 20 doesnt need to know instagram api, it hits your database
+		# could have a function click first - my . separate functions. hit initial route to call the function thatd does the paging n pass in records
+		# function for calling and function for posting
+		# 1st call process return to function that calls get more and return
+		render json: @search.results
 	end
 
 
