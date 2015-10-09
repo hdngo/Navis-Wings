@@ -21,7 +21,9 @@ class SearchesController < ApplicationController
 				end
 
 				p "is there a next page?"
+				next_page_boolean = false
 				if has_next_page_link?(response_body)
+					next_page_boolean = true
 					p 'yeah, keep going!'
 					InstagrabsWorker.perform_async(response_body["pagination"]["next_url"], @search.id)
 					# paginate(response_body["pagination"]["next_url"], @search.id)
@@ -39,9 +41,10 @@ class SearchesController < ApplicationController
 		# click the load button and hit a second route in the controller that will make a request that renders the images/videos without storing them because the background job is already going
 		# next route for 20 doesnt need to know instagram api, it hits your database
 		# could have a function click first - my . separate functions. hit initial route to call the function thatd does the paging n pass in records
-		# function for calling and function for posting
+		# function for calling and function for postinggdat
 		# 1st call process return to function that calls get more and return
-		render json: @search.results
+
+		render json: {search_id: @search.id, results: @search.results, next_page: next_page_boolean}
 	end
 
 
@@ -54,6 +57,7 @@ class SearchesController < ApplicationController
 		@search = Search.find(params[:id])
 		render json: @search
 	end
+
 
 	private
 		def search_params
