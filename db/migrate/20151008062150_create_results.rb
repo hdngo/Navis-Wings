@@ -2,7 +2,7 @@ class CreateResults < ActiveRecord::Migration
   def change
     create_table :results do |t|
       t.string :ig_username
-      t.integer :tag_time
+      t.string :tag_time
       t.string :content_type
       t.string :ig_link
       t.string :image_url

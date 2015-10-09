@@ -24,6 +24,21 @@ class ApplicationController < ActionController::API
    #      return
    #    end
    # end
+   def contains_hashtag?(text, hashtag)
+    text.downcase.include?(hashtag)
+   end
+
+   def falls_within_date_range?(date, start_date, end_date)
+    p " * " * 100
+    p "create date #{date}"
+    p "start date #{start_date}"
+    p "end date #{end_date}"
+    if(start_date.to_i <= date.to_i && date.to_i <= end_date.to_i)
+      return true
+    else
+      return false
+    end
+  end
 
    def has_next_page_link?(response_body)
     response_body["pagination"]["next_url"] ? true : false
@@ -37,22 +52,46 @@ class ApplicationController < ActionController::API
     result["type"] == "video"
    end
 
-   def filter_data(result)
+   def filter_data(result, hashtag, search_start_date, search_end_date)
     filtered_data = {ig_username: result["user"]["username"], content_type: result["type"], image_url: result["images"]["standard_resolution"]["url"], "ig_link": result["link"]}
 
     if caption_empty?(result)
       filtered_data[:description] = ""
     else
+      created_time = result["caption"]["created_time"].concat("000")
       filtered_data[:description] = result["caption"]["text"]
+      p "*" * 100
+      if contains_hashtag?(filtered_data[:description], hashtag)
+        p 'we have a hashtag here'
+        if falls_within_date_range?(created_time, search_start_date, search_end_date)
+          p "the caption falls within the time frame"
+          filtered_data[:tag_time] = created_time
+        end
+      else
+        p "check the comments"
+        
+        p "there are #{result['comments']['count']} comments"
+        comments = result["comments"]["data"].select {|comment| comment['from']['username'] == filtered_data[:ig_username]}
+        p "we have a comment from the user"
+        comments.each do |comment|
+
+          if contains_hashtag?(comment["text"], hashtag)
+            p comment["text"]
+            filtered_data[:tag_time] = comment["created_time"].concat("000")
+            break
+          end
+        end
+
+      end
     end
 
     if is_a_video?(result)
       filtered_data[:video_url] = result["videos"]["standard_resolution"]["url"]
-     else
+    else
       filtered_data[:video_url] = ""
     end
     filtered_data
-   end
+  end
 
    private
      def allow_cross_origin_requests
