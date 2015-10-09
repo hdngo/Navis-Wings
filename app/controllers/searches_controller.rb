@@ -9,7 +9,7 @@ class SearchesController < ApplicationController
 		@search = Search.new({hashtag: params[:hashtag], start_date: params[:start_date], end_date: params[:end_date]})
 		@search.save
 
-		response = HTTParty.get("https://api.instagram.com/v1/tags/#{params[:hashtag]}/media/recent?access_token=1458656326.1fb234f.3ca08ac5039a40ac92cc74d6cf27aa05")
+		response = HTTParty.get("https://api.instagram.com/v1/tags/#{params[:hashtag]}/media/recent?access_token=#{ENV['IG_TOKEN']}")
 		response_body = JSON.parse(response.body)
 
 		hashtag = params[:hashtag].dup.prepend('#')
