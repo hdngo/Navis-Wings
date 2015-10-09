@@ -7,32 +7,11 @@ class ApplicationController < ActionController::API
     render nothing: true
    end
 
-   # def paginate(next_page_url, search_id)
-   #  response = HTTParty.get(next_page_url)
-   #  response_body = JSON.parse(response.body)
-
-   #  response_body["data"].each do |result|
-   #    filtered_result_data = filter_data(result)
-   #    @result = Result.create(ig_username: filtered_result_data[:ig_username], content_type: filtered_result_data[:content_type], ig_link: filtered_result_data[:ig_link], image_url: filtered_result_data[:image_url], video_url: filtered_result_data[:video_url], description: filtered_result_data[:description], search_id: search_id)
-   #    end
-
-   #    p "is there a next page?"
-   #    if has_next_page_link?(response_body)
-   #      p 'yeah, keep going!'
-   #      paginate(response_body["pagination"]["next_url"], search_id)
-   #    else
-   #      return
-   #    end
-   # end
    def contains_hashtag?(text, hashtag)
     text.downcase.include?(hashtag)
    end
 
    def falls_within_date_range?(date, start_date, end_date)
-    p " * " * 100
-    p "create date #{date}"
-    p "start date #{start_date}"
-    p "end date #{end_date}"
     if(start_date.to_i <= date.to_i && date.to_i <= end_date.to_i)
       return true
     else
@@ -60,19 +39,12 @@ class ApplicationController < ActionController::API
     else
       created_time = result["caption"]["created_time"].concat("000")
       filtered_data[:description] = result["caption"]["text"]
-      p "*" * 100
       if contains_hashtag?(filtered_data[:description], hashtag)
-        p 'we have a hashtag here'
         if falls_within_date_range?(created_time, search_start_date, search_end_date)
-          p "the caption falls within the time frame"
           filtered_data[:tag_time] = created_time
         end
       else
-        p "check the comments"
-        
-        p "there are #{result['comments']['count']} comments"
         comments = result["comments"]["data"].select {|comment| comment['from']['username'] == filtered_data[:ig_username]}
-        p "we have a comment from the user"
         comments.each do |comment|
 
           if contains_hashtag?(comment["text"], hashtag)
