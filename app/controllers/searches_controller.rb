@@ -6,18 +6,18 @@ class SearchesController < ApplicationController
 	end
 
 	def create
-		p "*" * 100
 		@search = Search.new({hashtag: params[:hashtag], start_date: params[:start_date], end_date: params[:end_date]})
 		@search.save
 
 		response = HTTParty.get("https://api.instagram.com/v1/tags/#{params[:hashtag]}/media/recent?access_token=1458656326.1fb234f.3ca08ac5039a40ac92cc74d6cf27aa05")
 		response_body = JSON.parse(response.body)
 
+		hashtag = params[:hashtag].dup.prepend('#')
 		if response_body["data"]
 
 			response_body["data"].each do |result|
-				filtered_result_data = filter_data(result)
-				@result = Result.create(ig_username: filtered_result_data[:ig_username], content_type: filtered_result_data[:content_type], ig_link: filtered_result_data[:ig_link], image_url: filtered_result_data[:image_url], video_url: filtered_result_data[:video_url], description: filtered_result_data[:description], search_id: @search.id)
+				filtered_result_data = filter_data(result, hashtag, @search.start_date, @search.end_date)
+				@result = Result.create(ig_username: filtered_result_data[:ig_username], tag_time: filtered_result_data[:tag_time], content_type: filtered_result_data[:content_type], ig_link: filtered_result_data[:ig_link], image_url: filtered_result_data[:image_url], video_url: filtered_result_data[:video_url], description: filtered_result_data[:description], search_id: @search.id)
 				end
 
 				p "is there a next page?"
@@ -25,7 +25,7 @@ class SearchesController < ApplicationController
 				if has_next_page_link?(response_body)
 					next_page_boolean = true
 					p 'yeah, keep going!'
-					InstagrabsWorker.perform_async(response_body["pagination"]["next_url"], @search.id)
+					InstagrabsWorker.perform_async(response_body["pagination"]["next_url"], @search.id, hashtag, @search.start_date, @search.end_date)
 					# paginate(response_body["pagination"]["next_url"], @search.id)
 				end
 		end

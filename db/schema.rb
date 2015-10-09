@@ -18,7 +18,7 @@ ActiveRecord::Schema.define(version: 20151008062150) do
 
   create_table "results", force: :cascade do |t|
     t.string   "ig_username"
-    t.integer  "tag_time"
+    t.string   "tag_time"
     t.string   "content_type"
     t.string   "ig_link"
     t.string   "image_url"
