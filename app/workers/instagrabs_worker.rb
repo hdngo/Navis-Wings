@@ -54,6 +54,5 @@ class InstagrabsWorker
 				p 'nope, stop here'
 				return
 			end
-		end
 	end
 end
