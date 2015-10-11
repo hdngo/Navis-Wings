@@ -5,8 +5,8 @@ Rails.application.routes.draw do
     resources :searches do
       resources :results
     end
-    get 'welcome/index'
-    root 'welcome#index'
+    # get 'welcome/index'
+    # root 'welcome#index'
 
     # serves "paginated" results
     get '/searches/:id/results/page/:result_offset' => 'results#show_page'
